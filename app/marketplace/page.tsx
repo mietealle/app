@@ -6,17 +6,20 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { categories, locations } from '@/lib/mock-data'
 import { formatCurrency } from '@/lib/utils'
-import { Search, MapPin, Star, SlidersHorizontal, CheckCircle, X, Zap } from 'lucide-react'
+import { Search, MapPin, Star, SlidersHorizontal, CheckCircle, X, Zap, SlidersHorizontal as Filters } from 'lucide-react'
 import AIMatchingPanel from '@/components/ai/AIMatchingPanel'
+import AISearchBar, { type ParsedQuery } from '@/components/ai/AISearchBar'
 import { getSession } from '@/lib/session'
 
 export default function MarketplacePage() {
-  const [products, setProducts] = useState<any[]>([])
-  const [loading, setLoading]   = useState(true)
-  const [search, setSearch]     = useState('')
-  const [category, setCategory] = useState('All Categories')
-  const [location, setLocation] = useState('All Locations')
+  const [products, setProducts]       = useState<any[]>([])
+  const [loading, setLoading]         = useState(true)
+  const [search, setSearch]           = useState('')
+  const [category, setCategory]       = useState('All Categories')
+  const [location, setLocation]       = useState('All Locations')
   const [onlyAvailable, setOnlyAvailable] = useState(false)
+  const [aiQuery, setAiQuery]         = useState<(ParsedQuery & { raw: string }) | null>(null)
+  const [showAdvanced, setShowAdvanced] = useState(false)
   const session = typeof window !== 'undefined' ? getSession() : null
 
   const fetchProducts = useCallback(() => {
@@ -33,56 +36,118 @@ export default function MarketplacePage() {
 
   useEffect(() => { fetchProducts() }, [fetchProducts])
 
-  const filtered = products.filter(p =>
-    !search ||
-    p.title?.toLowerCase().includes(search.toLowerCase()) ||
-    p.description?.toLowerCase().includes(search.toLowerCase()) ||
-    p.vendor?.company?.toLowerCase().includes(search.toLowerCase())
-  )
+  // Apply AI query filter on top of fetched products
+  const filtered = products.filter(p => {
+    // AI query filter
+    if (aiQuery) {
+      const title = (p.title ?? '').toLowerCase()
+      const desc  = (p.description ?? '').toLowerCase()
+      const cat   = (p.category ?? '').toLowerCase()
+      const loc   = (p.location ?? '').toLowerCase()
 
-  const hasFilters = category !== 'All Categories' || location !== 'All Locations' || onlyAvailable || search
-  const clearFilters = () => { setSearch(''); setCategory('All Categories'); setLocation('All Locations'); setOnlyAvailable(false) }
+      // Category match from AI
+      if (aiQuery.category && p.category !== aiQuery.category) return false
+
+      // Location match from AI
+      if (aiQuery.location && !loc.includes(aiQuery.location.toLowerCase())) return false
+
+      // Keyword match — at least one keyword must hit title or description
+      if (aiQuery.keywords.length > 0) {
+        const hit = aiQuery.keywords.some(kw => title.includes(kw) || desc.includes(kw) || cat.includes(kw))
+        if (!hit) return false
+      }
+
+      return true
+    }
+
+    // Regular text search
+    if (!search) return true
+    return (
+      p.title?.toLowerCase().includes(search.toLowerCase()) ||
+      p.description?.toLowerCase().includes(search.toLowerCase()) ||
+      p.vendor?.company?.toLowerCase().includes(search.toLowerCase())
+    )
+  })
+
+  const handleAISearch = (parsed: ParsedQuery & { raw: string }) => {
+    setAiQuery(parsed)
+    setSearch('')
+    // Sync advanced filters if AI detected them
+    if (parsed.category) setCategory(parsed.category)
+    if (parsed.location)  setLocation(parsed.location)
+  }
+
+  const clearAI = () => {
+    setAiQuery(null)
+    setCategory('All Categories')
+    setLocation('All Locations')
+  }
+
+  const hasFilters = aiQuery || category !== 'All Categories' || location !== 'All Locations' || onlyAvailable || search
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
 
-      {/* Header + filters */}
+      {/* Header + search */}
       <div className="bg-white border-b border-gray-100 py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Browse Equipment</h1>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input type="text" placeholder="Search equipment or vendor..." value={search}
-                onChange={e => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-brand-500" />
-            </div>
-            <select value={category} onChange={e => setCategory(e.target.value)}
-              className="px-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 min-w-[160px]">
-              {categories.map(c => <option key={c}>{c}</option>)}
-            </select>
-            <select value={location} onChange={e => setLocation(e.target.value)}
-              className="px-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 min-w-[140px]">
-              {locations.map(l => <option key={l}>{l}</option>)}
-            </select>
-            <button onClick={() => setOnlyAvailable(!onlyAvailable)}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm border rounded-lg transition-colors whitespace-nowrap ${onlyAvailable ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-700 border-gray-200 hover:border-brand-400'}`}>
-              <CheckCircle className="w-4 h-4" />Available Now
+
+          {/* ✨ AI Search Bar — primary */}
+          <AISearchBar
+            onSearch={handleAISearch}
+            onClear={clearAI}
+            isActive={!!aiQuery}
+          />
+
+          {/* Toggle advanced filters */}
+          <div className="flex items-center gap-3 mt-3">
+            <button
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="flex items-center gap-2 text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              <Filters className="w-3.5 h-3.5" />
+              {showAdvanced ? 'Hide' : 'Show'} advanced filters
+              {!showAdvanced && aiQuery && <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-[10px] font-bold">AI active</span>}
             </button>
             {hasFilters && (
-              <button onClick={clearFilters} className="flex items-center gap-1 px-3 py-2.5 text-sm text-gray-500 hover:text-red-500 border border-gray-200 rounded-lg hover:border-red-200 bg-white">
-                <X className="w-3.5 h-3.5" />Clear
+              <button onClick={() => { setSearch(''); setCategory('All Categories'); setLocation('All Locations'); setOnlyAvailable(false); clearAI() }}
+                className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700">
+                <X className="w-3 h-3" />Clear all
               </button>
             )}
           </div>
+
+          {/* Advanced filters panel */}
+          {showAdvanced && (
+            <div className="flex flex-col sm:flex-row gap-3 mt-3 pt-3 border-t border-gray-100">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input type="text" placeholder="Manual keyword search..." value={search}
+                  onChange={e => { setSearch(e.target.value); setAiQuery(null) }}
+                  className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-brand-500" />
+              </div>
+              <select value={category} onChange={e => setCategory(e.target.value)}
+                className="px-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 min-w-[160px]">
+                {categories.map(c => <option key={c}>{c}</option>)}
+              </select>
+              <select value={location} onChange={e => setLocation(e.target.value)}
+                className="px-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 min-w-[140px]">
+                {locations.map(l => <option key={l}>{l}</option>)}
+              </select>
+              <button onClick={() => setOnlyAvailable(!onlyAvailable)}
+                className={`flex items-center gap-2 px-4 py-2.5 text-sm border rounded-lg transition-colors whitespace-nowrap ${onlyAvailable ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-700 border-gray-200'}`}>
+                <CheckCircle className="w-4 h-4" />Available Now
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-
-        {/* AI Matching Panel — only shows for logged-in renters */}
-        {session?.role === 'renter' && products.length > 0 && (
+        {/* AI Matching Panel — logged-in renters */}
+        {!aiQuery && session?.role === 'renter' && products.length > 0 && (
           <AIMatchingPanel
             products={products.filter(p => p.available).slice(0, 3)}
             userName={session.name}
@@ -98,24 +163,36 @@ export default function MarketplacePage() {
           <div className="text-center py-20">
             <SlidersHorizontal className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500 font-medium">No equipment found</p>
-            <p className="text-gray-400 text-sm mt-1">{hasFilters ? 'Try adjusting your filters' : 'No active listings yet'}</p>
-            {hasFilters && <button onClick={clearFilters} className="mt-3 text-sm text-brand-600 hover:underline">Clear all filters</button>}
+            {aiQuery ? (
+              <p className="text-gray-400 text-sm mt-1">Try rephrasing — e.g. "forklift in Berlin" or "LED display 2 days"</p>
+            ) : (
+              <p className="text-gray-400 text-sm mt-1">Try adjusting your filters</p>
+            )}
+            <button onClick={() => { clearAI(); setSearch(''); setCategory('All Categories'); setLocation('All Locations'); setOnlyAvailable(false) }}
+              className="mt-3 text-sm text-brand-600 hover:underline">Clear all filters</button>
           </div>
         ) : (
           <>
             <p className="text-sm text-gray-500 mb-6">
               Showing <span className="font-semibold text-gray-900">{filtered.length}</span> result{filtered.length !== 1 ? 's' : ''}
-              {category !== 'All Categories' && <> in <span className="font-semibold text-gray-900">{category}</span></>}
-              {location !== 'All Locations'   && <> near <span className="font-semibold text-gray-900">{location}</span></>}
+              {aiQuery && <span className="ml-2 text-purple-600 font-medium">✨ via AI search</span>}
+              {category !== 'All Categories' && !aiQuery && <> in <span className="font-semibold text-gray-900">{category}</span></>}
+              {location !== 'All Locations' && !aiQuery  && <> near <span className="font-semibold text-gray-900">{location}</span></>}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map((product, idx) => (
                 <Link key={product.id} href={`/marketplace/${product.id}`}>
-                  <div className={`group bg-white rounded-2xl border shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden ${idx === 0 ? 'border-purple-200 ring-1 ring-purple-100' : 'border-gray-100'}`}>
-                    {/* AI Best Match badge on first result */}
-                    {idx === 0 && (
+                  <div className={`group bg-white rounded-2xl border shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden ${idx === 0 && !aiQuery ? 'border-purple-200 ring-1 ring-purple-100' : 'border-gray-100'}`}>
+                    {/* AI Best Match badge on first result (non-AI search) */}
+                    {idx === 0 && !aiQuery && (
                       <div className="bg-purple-600 text-white text-[10px] font-bold px-3 py-1 flex items-center gap-1.5">
                         <Zap className="w-3 h-3" />✨ AI Best Match for You (Phase 2 preview)
+                      </div>
+                    )}
+                    {/* AI Search match badge */}
+                    {aiQuery && idx === 0 && (
+                      <div className="bg-gradient-to-r from-purple-600 to-brand-600 text-white text-[10px] font-bold px-3 py-1 flex items-center gap-1.5">
+                        <Zap className="w-3 h-3" />✨ Best AI Match — "{aiQuery.raw.slice(0, 40)}{aiQuery.raw.length > 40 ? '…' : ''}"
                       </div>
                     )}
                     <div className="relative h-48 bg-gray-100 overflow-hidden">

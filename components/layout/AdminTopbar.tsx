@@ -87,7 +87,7 @@ export default function AdminTopbar() {
               {/* Sign out */}
               <div className="border-t border-gray-100 py-1">
                 <button
-                  onClick={() => { clearSession(); router.push('/admin/login') }}
+                  onClick={() => { clearSession(); router.push('/') }}
                   className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                 >
                   <LogOut className="w-4 h-4" />Sign Out

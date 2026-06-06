@@ -114,7 +114,7 @@ export default function VendorSidebar() {
                 <p className="text-xs text-gray-500">{session.email}</p>
                 <span className="inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-100 text-brand-700">Vendor</span>
               </div>
-              <button onClick={() => { clearSession(); router.push('/vendor/login') }}
+              <button onClick={() => { clearSession(); router.push('/') }}
                 className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50">
                 <LogOut className="w-4 h-4" />Sign Out
               </button>
