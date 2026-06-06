@@ -4,8 +4,9 @@ import { useRouter } from 'next/navigation'
 import { StatCard } from '@/components/ui/Card'
 import { formatCurrency, formatDate, getStatusColor } from '@/lib/utils'
 import { getSession } from '@/lib/session'
-import { Users, Package, ShoppingBag, TrendingUp, AlertCircle } from 'lucide-react'
+import { Users, Package, ShoppingBag, TrendingUp, AlertCircle, Zap } from 'lucide-react'
 import Link from 'next/link'
+import DemandForecastWidget from '@/components/ai/DemandForecastWidget'
 
 const COMMISSION = 0.10 // 10% platform fee
 
@@ -45,6 +46,9 @@ export default function AdminDashboard() {
         <h1 className="text-2xl font-bold text-gray-900">Platform Overview</h1>
         <p className="text-gray-500 text-sm mt-1">Real-time data from Supabase.</p>
       </div>
+
+      {/* AI Demand Forecast Widget */}
+      <DemandForecastWidget />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard label="Total Vendors"       value={vendors.length}                                    icon={Package}     color="brand"  />

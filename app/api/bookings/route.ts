@@ -74,28 +74,48 @@ export async function POST(req: NextRequest) {
     ))
     const totalAmount = totalDays * Number(product.price_per_day)
 
+    // Core booking fields (always work with base schema)
+    const corePayload = {
+      product_id: productId, renter_id: renterId, vendor_id: product.vendor_id,
+      start_date: startDate, end_date: endDate,
+      total_days: totalDays, total_amount: totalAmount, status: 'pending',
+    }
+
+    // Try with extended fields first (schema-v2)
     const tCost = transportOption === 'vendor' ? Number(transportCost ?? 0) : 0
     const iCost = insuranceSelected ? Number(insuranceCost ?? 0) : 0
+    const extPayload = {
+      ...corePayload,
+      tracking_status: 'pending',
+      transport_option: transportOption ?? 'self_pickup',
+      transport_cost: tCost,
+      insurance_selected: insuranceSelected ?? false,
+      insurance_cost: iCost,
+      delivery_address: deliveryAddress ?? null,
+      pre_payment_amount: Math.min(totalAmount, Number(product.price_per_day) * 5),
+      commission_rate: 10,
+    }
 
-    const r = await fetch(`${BASE}/rest/v1/bookings`, {
-      method: 'POST',
-      headers: { ...H, Prefer: 'return=representation' },
-      body: JSON.stringify({
-        product_id: productId, renter_id: renterId, vendor_id: product.vendor_id,
-        start_date: startDate, end_date: endDate,
-        total_days: totalDays, total_amount: totalAmount, status: 'pending',
-        tracking_status: 'pending',
-        transport_option: transportOption ?? 'self_pickup',
-        transport_cost: tCost,
-        insurance_selected: insuranceSelected ?? false,
-        insurance_cost: iCost,
-        delivery_address: deliveryAddress ?? null,
-        pre_payment_amount: Math.min(totalAmount, Number(product.price_per_day) * 5),
-        commission_rate: 10,  // default — updated from vendor profile if set
-      }),
+    let r = await fetch(`${BASE}/rest/v1/bookings`, {
+      method: 'POST', headers: { ...H, Prefer: 'return=representation' },
+      body: JSON.stringify(extPayload),
     })
+
+    // If extended fields fail (schema-v2 not run), fallback to core fields
+    if (!r.ok) {
+      const errText = await r.text()
+      if (errText.includes('column') || errText.includes('does not exist')) {
+        r = await fetch(`${BASE}/rest/v1/bookings`, {
+          method: 'POST', headers: { ...H, Prefer: 'return=representation' },
+          body: JSON.stringify(corePayload),
+        })
+      } else {
+        return NextResponse.json({ error: errText }, { status: r.status })
+      }
+    }
+
     const data = await r.json()
-    if (!r.ok) return NextResponse.json({ error: data.message }, { status: r.status })
+    if (!r.ok) return NextResponse.json({ error: data.message ?? data }, { status: r.status })
     return NextResponse.json({ booking: Array.isArray(data) ? data[0] : data }, { status: 201 })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
@@ -108,25 +128,41 @@ export async function PATCH(req: NextRequest) {
     if (!bookingId)
       return NextResponse.json({ error: 'bookingId required' }, { status: 400 })
 
-    const patch: Record<string, any> = { ...extra }
-    if (status)         patch.status          = status
-    if (trackingStatus) patch.tracking_status = trackingStatus
+    // Always include status (works even without schema-v2)
+    const patch: Record<string, any> = {}
+    if (status) patch.status = status
 
-    // Auto-set timestamps based on tracking status
-    const now = new Date().toISOString()
-    if (trackingStatus === 'in_transit')        patch.dispatched_at         = now
-    if (trackingStatus === 'delivered')          patch.delivered_at          = now
-    if (trackingStatus === 'return_initiated')   patch.return_initiated_at   = now
-    if (trackingStatus === 'return_in_transit')  patch.return_in_transit_at  = now
-    if (trackingStatus === 'returned')           patch.returned_at           = now
-    if (trackingStatus === 'completed')          patch.closed_at             = now
-
+    // Try first with just status (works without schema-v2)
+    // Then retry with extended fields if schema-v2 is available
     const r = await fetch(`${BASE}/rest/v1/bookings?id=eq.${bookingId}`, {
       method: 'PATCH',
       headers: { ...H, Prefer: 'return=minimal' },
       body: JSON.stringify(patch),
     })
-    if (!r.ok) { const t = await r.text(); return NextResponse.json({ error: t }, { status: r.status }) }
+    if (!r.ok) {
+      const t = await r.text()
+      return NextResponse.json({ error: t }, { status: r.status })
+    }
+
+    // Also try to update extended fields (only works if schema-v2 has been run)
+    if (trackingStatus) {
+      const now = new Date().toISOString()
+      const extPatch: Record<string, any> = { tracking_status: trackingStatus }
+      if (trackingStatus === 'in_transit')        extPatch.dispatched_at        = now
+      if (trackingStatus === 'delivered')          extPatch.delivered_at         = now
+      if (trackingStatus === 'return_initiated')   extPatch.return_initiated_at  = now
+      if (trackingStatus === 'return_in_transit')  extPatch.return_in_transit_at = now
+      if (trackingStatus === 'returned')           extPatch.returned_at          = now
+      if (trackingStatus === 'completed')          extPatch.closed_at            = now
+
+      // Best-effort — don't fail if column doesn't exist
+      await fetch(`${BASE}/rest/v1/bookings?id=eq.${bookingId}`, {
+        method: 'PATCH',
+        headers: { ...H, Prefer: 'return=minimal' },
+        body: JSON.stringify(extPatch),
+      }).catch(() => {})
+    }
+
     return NextResponse.json({ success: true })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })

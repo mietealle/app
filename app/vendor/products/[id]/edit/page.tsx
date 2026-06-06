@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import Navbar from '@/components/layout/Navbar'
+import VendorPageLayout from '@/components/layout/VendorPageLayout'
 import { getSession } from '@/lib/session'
 import { categories } from '@/lib/mock-data'
 import { ChevronLeft, CheckCircle, Plus, X, AlertCircle } from 'lucide-react'
@@ -77,14 +77,15 @@ export default function EditProductPage() {
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-50"><Navbar />
-      <div className="flex items-center justify-center h-96"><div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" /></div>
-    </div>
+    <VendorPageLayout>
+      <div className="flex items-center justify-center h-96">
+        <div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    </VendorPageLayout>
   )
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
+    <VendorPageLayout>
       <div className="max-w-3xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <Link href="/vendor/products" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-600 w-fit">
@@ -205,6 +206,6 @@ export default function EditProductPage() {
           </div>
         </div>
       </div>
-    </div>
+    </VendorPageLayout>
   )
 }

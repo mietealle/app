@@ -3,11 +3,12 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import Navbar from '@/components/layout/Navbar'
+import RenterPageLayout from '@/components/layout/RenterPageLayout'
 import { formatCurrency, formatDate, getStatusColor } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
 import { getSession } from '@/lib/session'
-import { ShoppingBag, Search, Calendar, TrendingDown, CheckCircle, Clock, ArrowRight, MapPin, Star } from 'lucide-react'
+import { ShoppingBag, Search, Calendar, TrendingDown, CheckCircle, Clock, ArrowRight, MapPin, Star, Zap } from 'lucide-react'
+import AIMatchingPanel from '@/components/ai/AIMatchingPanel'
 
 export default function RenterDashboard() {
   const router = useRouter()
@@ -34,15 +35,16 @@ export default function RenterDashboard() {
   const totalSpent = bookings.reduce((s, b) => s + Number(b.total_amount), 0)
 
   if (loading || !profile) return (
-    <div className="min-h-screen bg-gray-50"><Navbar />
-      <div className="flex items-center justify-center h-96"><div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" /></div>
-    </div>
+    <RenterPageLayout>
+      <div className="flex items-center justify-center h-96">
+        <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    </RenterPageLayout>
   )
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <RenterPageLayout>
+      <div className="p-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Welcome back, {profile.name?.split(' ')[0]} 👋</h1>
@@ -57,6 +59,13 @@ export default function RenterDashboard() {
             <Search className="w-4 h-4" />Browse Equipment
           </Link>
         </div>
+
+        {/* AI Matching Panel */}
+        <AIMatchingPanel
+          products={recommended}
+          userName={profile?.name}
+          companyName={profile?.company}
+        />
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <StatCard label="Total Bookings" value={bookings.length}                                              icon={ShoppingBag} color="brand" />
@@ -146,6 +155,6 @@ export default function RenterDashboard() {
           </div>
         </div>
       </div>
-    </div>
+    </RenterPageLayout>
   )
 }

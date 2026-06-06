@@ -4,8 +4,9 @@ import { usePathname } from 'next/navigation'
 import { BarChart3, CheckSquare, Package, Users, Shield, ShoppingBag } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-// No session check here — individual admin pages handle auth redirect.
-// Keeping the sidebar simple so it always renders without flicker.
+// Auth guard is handled by the admin layout (skips sidebar on /admin/login).
+// Individual pages also redirect if no session.
+// Sidebar itself always renders on authenticated admin pages.
 
 const nav = [
   { href: '/admin/dashboard',     icon: BarChart3,   label: 'Dashboard'    },

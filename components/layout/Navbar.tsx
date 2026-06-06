@@ -6,7 +6,7 @@ import { getSession, clearSession, type SessionUser } from '@/lib/session'
 import NotificationBell from '@/components/ui/NotificationBell'
 import {
   Package, Menu, X, ChevronDown, LogOut,
-  LayoutDashboard, Store, ShieldCheck,
+  LayoutDashboard, Search, ShieldCheck,
 } from 'lucide-react'
 
 const DASH_LINK: Record<string, string> = {
@@ -76,7 +76,7 @@ function UserMenu({ session, onLogout }: { session: SessionUser; onLogout: () =>
             </Link>
             <Link href="/marketplace" onClick={() => setOpen(false)}
               className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-              <Store className="w-4 h-4 text-gray-400" />Browse Equipment
+              <Search className="w-4 h-4 text-gray-400" />Browse Equipment
             </Link>
             {session.role === 'admin' && (
               <Link href="/admin/verifications" onClick={() => setOpen(false)}
@@ -158,6 +158,9 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             <Link href="/marketplace" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50">
               Browse Equipment
+            </Link>
+            <Link href="/ai-features" className="flex items-center gap-1 text-sm font-medium text-purple-600 hover:text-purple-700 px-3 py-2 rounded-lg hover:bg-purple-50 transition-colors">
+              <span>✨</span>AI Features
             </Link>
 
             {session ? (

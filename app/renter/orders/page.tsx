@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import Navbar from '@/components/layout/Navbar'
+import RenterPageLayout from '@/components/layout/RenterPageLayout'
 import { getSession } from '@/lib/session'
 import { formatCurrency, formatDate, getStatusColor } from '@/lib/utils'
 import { ChevronLeft, Calendar, Clock, CheckCircle, XCircle, Package, AlertCircle } from 'lucide-react'
@@ -33,8 +33,7 @@ export default function RenterOrdersPage() {
   const filtered = filter === 'all' ? orders : orders.filter(b => b.status === filter)
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
+    <RenterPageLayout>
       <div className="max-w-4xl mx-auto px-4 py-8">
         <Link href="/renter/dashboard" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-600 mb-6 w-fit">
           <ChevronLeft className="w-4 h-4" /> Back to Dashboard
@@ -152,6 +151,6 @@ export default function RenterOrdersPage() {
           </div>
         )}
       </div>
-    </div>
+    </RenterPageLayout>
   )
 }

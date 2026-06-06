@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import Navbar from '@/components/layout/Navbar'
+import VendorPageLayout from '@/components/layout/VendorPageLayout'
 import { formatCurrency, formatDate, getStatusColor } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
 import { getSession } from '@/lib/session'
-import { Package, Plus, TrendingUp, Calendar, CheckCircle, Clock, AlertCircle, Eye, Edit3, Star, Store, ShoppingBag } from 'lucide-react'
+import { Package, Plus, TrendingUp, Calendar, CheckCircle, Clock, AlertCircle, Eye, Edit3, Star, ShoppingBag, Search, Zap } from 'lucide-react'
 
 const COMMISSION = 0.10
 
@@ -37,15 +37,16 @@ export default function VendorDashboard() {
   const platformFee  = confirmedAmt * COMMISSION
 
   if (loading || !profile) return (
-    <div className="min-h-screen bg-gray-50"><Navbar />
-      <div className="flex items-center justify-center h-96"><div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" /></div>
-    </div>
+    <VendorPageLayout>
+      <div className="flex items-center justify-center h-96">
+        <div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    </VendorPageLayout>
   )
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <VendorPageLayout>
+      <div className="p-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Welcome back, {profile.name?.split(' ')[0]} 👋</h1>
@@ -58,7 +59,7 @@ export default function VendorDashboard() {
           </div>
           <div className="flex gap-2">
             <Link href="/marketplace" className="flex items-center gap-2 px-4 py-2.5 border border-gray-200 bg-white text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50 shadow-sm">
-              <Store className="w-4 h-4" />Browse
+              <Search className="w-4 h-4" />Browse
             </Link>
             <Link href="/vendor/bookings" className="flex items-center gap-2 px-4 py-2.5 border border-brand-200 bg-brand-50 text-brand-700 text-sm font-semibold rounded-xl hover:bg-brand-100 shadow-sm">
               <ShoppingBag className="w-4 h-4" />Bookings
@@ -70,6 +71,29 @@ export default function VendorDashboard() {
             </Link>
             <Link href="/vendor/products/new" className="flex items-center gap-2 px-4 py-2.5 bg-brand-600 text-white text-sm font-semibold rounded-xl hover:bg-brand-700 transition-colors shadow-sm">
               <Plus className="w-4 h-4" />Add Product
+            </Link>
+          </div>
+        </div>
+
+        {/* AI Banner */}
+        <div className="bg-gradient-to-r from-purple-50 to-brand-50 border border-purple-100 rounded-2xl p-4 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex items-center gap-3 flex-1">
+              <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center shrink-0">
+                <Zap className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900 text-sm flex items-center gap-1.5">
+                  ✨ AI Features — Coming in Phase 2
+                </p>
+                <p className="text-xs text-gray-600 mt-0.5">
+                  <strong>Smart Pricing AI</strong> will suggest the optimal daily rate for your listings based on category, location and season.
+                  <strong> Demand Forecasting</strong> will alert you when your equipment category is trending — so you list at the right time and price.
+                </p>
+              </div>
+            </div>
+            <Link href="/ai-features" className="shrink-0 text-xs font-semibold text-purple-700 bg-purple-100 hover:bg-purple-200 px-3 py-2 rounded-xl transition-colors whitespace-nowrap">
+              See AI Roadmap →
             </Link>
           </div>
         </div>
@@ -197,6 +221,6 @@ export default function VendorDashboard() {
           </div>
         </div>
       </div>
-    </div>
+    </VendorPageLayout>
   )
 }

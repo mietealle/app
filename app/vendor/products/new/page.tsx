@@ -3,10 +3,11 @@ import { useState, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import Navbar from '@/components/layout/Navbar'
+import VendorPageLayout from '@/components/layout/VendorPageLayout'
 import { getSession } from '@/lib/session'
 import { categories } from '@/lib/mock-data'
 import { Upload, Plus, X, ChevronLeft, CheckCircle, AlertCircle, Loader } from 'lucide-react'
+import SmartPricingWidget from '@/components/ai/SmartPricingWidget'
 
 export default function NewProductPage() {
   const router   = useRouter()
@@ -68,8 +69,7 @@ export default function NewProductPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
+    <VendorPageLayout>
       <div className="max-w-3xl mx-auto px-4 py-8">
         <Link href="/vendor/dashboard" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-600 mb-6 w-fit">
           <ChevronLeft className="w-4 h-4" /> Back to Dashboard
@@ -123,6 +123,11 @@ export default function NewProductPage() {
                   <input type="number" value={form.pricePerDay} onChange={e => update('pricePerDay', e.target.value)} placeholder="0" min="0"
                     className="w-full pl-8 pr-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500" />
                 </div>
+                <SmartPricingWidget
+                  category={form.category}
+                  location={form.location}
+                  onAccept={(price) => update('pricePerDay', String(price))}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Minimum Rental Days</label>
@@ -213,6 +218,6 @@ export default function NewProductPage() {
           </div>
         </div>
       </div>
-    </div>
+    </VendorPageLayout>
   )
 }

@@ -6,7 +6,9 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { categories, locations } from '@/lib/mock-data'
 import { formatCurrency } from '@/lib/utils'
-import { Search, MapPin, Star, SlidersHorizontal, CheckCircle, X } from 'lucide-react'
+import { Search, MapPin, Star, SlidersHorizontal, CheckCircle, X, Zap } from 'lucide-react'
+import AIMatchingPanel from '@/components/ai/AIMatchingPanel'
+import { getSession } from '@/lib/session'
 
 export default function MarketplacePage() {
   const [products, setProducts] = useState<any[]>([])
@@ -15,6 +17,7 @@ export default function MarketplacePage() {
   const [category, setCategory] = useState('All Categories')
   const [location, setLocation] = useState('All Locations')
   const [onlyAvailable, setOnlyAvailable] = useState(false)
+  const session = typeof window !== 'undefined' ? getSession() : null
 
   const fetchProducts = useCallback(() => {
     setLoading(true)
@@ -77,6 +80,16 @@ export default function MarketplacePage() {
       </div>
 
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        {/* AI Matching Panel — only shows for logged-in renters */}
+        {session?.role === 'renter' && products.length > 0 && (
+          <AIMatchingPanel
+            products={products.filter(p => p.available).slice(0, 3)}
+            userName={session.name}
+            companyName={session.company}
+          />
+        )}
+
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => <div key={i} className="bg-white rounded-2xl border border-gray-100 h-72 animate-pulse" />)}
@@ -96,9 +109,15 @@ export default function MarketplacePage() {
               {location !== 'All Locations'   && <> near <span className="font-semibold text-gray-900">{location}</span></>}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map(product => (
+              {filtered.map((product, idx) => (
                 <Link key={product.id} href={`/marketplace/${product.id}`}>
-                  <div className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
+                  <div className={`group bg-white rounded-2xl border shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden ${idx === 0 ? 'border-purple-200 ring-1 ring-purple-100' : 'border-gray-100'}`}>
+                    {/* AI Best Match badge on first result */}
+                    {idx === 0 && (
+                      <div className="bg-purple-600 text-white text-[10px] font-bold px-3 py-1 flex items-center gap-1.5">
+                        <Zap className="w-3 h-3" />✨ AI Best Match for You (Phase 2 preview)
+                      </div>
+                    )}
                     <div className="relative h-48 bg-gray-100 overflow-hidden">
                       {product.images?.[0]
                         ? <Image src={product.images[0]} alt={product.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import Navbar from '@/components/layout/Navbar'
+import VendorPageLayout from '@/components/layout/VendorPageLayout'
 import { getSession } from '@/lib/session'
 import { formatCurrency } from '@/lib/utils'
 import { Plus, Eye, Edit3, ChevronLeft, ToggleLeft, ToggleRight } from 'lucide-react'
@@ -34,9 +34,8 @@ export default function VendorProductsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <div className="max-w-5xl mx-auto px-4 py-8">
+    <VendorPageLayout>
+      <div className="p-8">
         <Link href="/vendor/dashboard" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-600 mb-6 w-fit">
           <ChevronLeft className="w-4 h-4" /> Back to Dashboard
         </Link>
@@ -120,6 +119,6 @@ export default function VendorProductsPage() {
           </div>
         )}
       </div>
-    </div>
+    </VendorPageLayout>
   )
 }
