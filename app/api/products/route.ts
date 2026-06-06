@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
     if (products.length === 0) return NextResponse.json({ products: [] })
 
     // Fetch vendor profiles separately (avoids FK join issues)
-    const vendorIds = [...new Set(products.map((p: any) => p.vendor_id).filter(Boolean))]
+    const vendorIds = Array.from(new Set(products.map((p: any) => p.vendor_id).filter(Boolean)))
     const vendorsRaw = vendorIds.length > 0
       ? await supaGet(`profiles?id=in.(${vendorIds.join(',')})&select=id,name,company,verification_status,phone,email`)
       : []

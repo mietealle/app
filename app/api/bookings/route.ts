@@ -27,11 +27,11 @@ export async function GET(req: NextRequest) {
     const bookings = await supaGet(`bookings?${qs}order=created_at.desc&select=*`)
     if (bookings.length === 0) return NextResponse.json({ bookings: [] })
 
-    // Separate fetches for related data
-    const productIds = [...new Set(bookings.map((b: any) => b.product_id).filter(Boolean))]
-    const renterIds  = [...new Set(bookings.map((b: any) => b.renter_id).filter(Boolean))]
-    const vendorIds  = [...new Set(bookings.map((b: any) => b.vendor_id).filter(Boolean))]
-    const allProfileIds = [...new Set([...renterIds, ...vendorIds])]
+    // Separate fetches for related data — use Array.from for ES5 compatibility
+    const productIds    = Array.from(new Set(bookings.map((b: any) => b.product_id).filter(Boolean)))
+    const renterIds     = Array.from(new Set(bookings.map((b: any) => b.renter_id).filter(Boolean)))
+    const vendorIds     = Array.from(new Set(bookings.map((b: any) => b.vendor_id).filter(Boolean)))
+    const allProfileIds = Array.from(new Set([...renterIds, ...vendorIds]))
 
     const [products, profiles] = await Promise.all([
       productIds.length > 0
