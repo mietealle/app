@@ -7,7 +7,7 @@ import { mockProducts, categories } from '@/lib/mock-data'
 import { formatCurrency } from '@/lib/utils'
 import {
   ArrowRight, Search, Shield, Clock, Star, CheckCircle,
-  MapPin, Zap, Package, Users, TrendingUp, ChevronRight
+  MapPin, Zap, Users, TrendingUp, ChevronRight
 } from 'lucide-react'
 
 export default function HomePage() {
@@ -198,8 +198,8 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Vendor CTA */}
             <div className="bg-gradient-to-br from-brand-600 to-brand-800 rounded-2xl p-8 text-white">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4">
-                <Package className="w-6 h-6" />
+              <div className="mb-4">
+                <Image src="/logo.png" alt="Mietealle" width={48} height={48} className="rounded-xl" unoptimized />
               </div>
               <h3 className="text-xl font-bold mb-2">List Your Equipment</h3>
               <p className="text-brand-200 text-sm mb-6">Turn idle industrial assets into revenue. List for free and get bookings from verified businesses.</p>

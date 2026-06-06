@@ -1,11 +1,12 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter, usePathname } from 'next/navigation'
 import { getSession, clearSession, type SessionUser } from '@/lib/session'
 import NotificationBell from '@/components/ui/NotificationBell'
 import {
-  Package, Menu, X, ChevronDown, LogOut,
+  Menu, X, ChevronDown, LogOut,
   LayoutDashboard, Search, ShieldCheck,
 } from 'lucide-react'
 
@@ -148,9 +149,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-              <Package className="w-5 h-5 text-white" />
-            </div>
+            <Image src="/logo.png" alt="Mietealle" width={36} height={36} className="rounded-lg" unoptimized />
             <span className="text-xl font-bold text-gray-900">miete<span className="text-brand-600">alle</span></span>
           </Link>
 

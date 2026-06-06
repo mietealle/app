@@ -73,7 +73,7 @@ export default function AISearchBar({ onSearch, onClear, isActive }: Props) {
 
   const HINTS = [
     'I want Electric Forklift for 3 days',
-    'LED display board in Hamburg for 2 days',
+    'LED display board in Berlin for 2 days',
     'Sound system for a conference',
     'Generator in Berlin, 5 days',
     'Scissor lift for indoor maintenance',
@@ -127,7 +127,7 @@ export default function AISearchBar({ onSearch, onClear, isActive }: Props) {
             onKeyDown={e => e.key === 'Enter' && handleSearch()}
             onFocus={() => setShowHints(true)}
             onBlur={() => setTimeout(() => setShowHints(false), 200)}
-            placeholder='Try: "I need a forklift for 3 days in Hamburg"'
+            placeholder='Try: "I need a forklift for 3 days in Berlin"'
             className="w-full pl-12 pr-10 py-3 text-sm border-2 border-purple-200 rounded-xl bg-white focus:outline-none focus:border-purple-500 shadow-sm placeholder:text-gray-400"
           />
           {query && (

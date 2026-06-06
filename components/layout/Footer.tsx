@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Package } from 'lucide-react'
+import Image from 'next/image'
 
 export default function Footer() {
   return (
@@ -8,9 +8,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-                <Package className="w-5 h-5 text-white" />
-              </div>
+              <Image src="/logo.png" alt="Mietealle" width={32} height={32} className="rounded-lg" unoptimized />
               <span className="text-xl font-bold text-white">miete<span className="text-brand-400">alle</span></span>
             </div>
             <p className="text-sm leading-relaxed max-w-xs">

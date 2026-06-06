@@ -4,8 +4,9 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Package, ShoppingBag, Plus, LogOut,
-  ChevronDown, Bell, CheckCircle, Clock
+  ChevronDown, CheckCircle, Clock
 } from 'lucide-react'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { getSession, clearSession, type SessionUser } from '@/lib/session'
 import NotificationBell from '@/components/ui/NotificationBell'
@@ -45,9 +46,7 @@ export default function VendorSidebar() {
       {/* Logo */}
       <div className="p-5 border-b border-gray-100">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-brand-600 rounded-xl flex items-center justify-center">
-            <Package className="w-5 h-5 text-white" />
-          </div>
+          <Image src="/logo.png" alt="Mietealle" width={36} height={36} className="rounded-xl" unoptimized />
           <div>
             <p className="text-gray-900 font-bold text-sm">Vendor Portal</p>
             <p className="text-gray-400 text-xs truncate max-w-[120px]">{session.company}</p>

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { Sparkles, ArrowRight, Loader, X } from 'lucide-react'
 
 const HINTS = [
-  'I need an Electric Forklift for 3 days in Hamburg',
+  'I need an Electric Forklift for 3 days in Berlin',
   'LED display board for a trade fair in Berlin',
   'Sound system for a 200-person conference',
   'Industrial generator, 5 days, Frankfurt',
@@ -74,7 +74,7 @@ export default function HeroAISearch() {
               onKeyDown={e => e.key === 'Enter' && go(query)}
               onFocus={() => setShowHints(true)}
               onBlur={() => setTimeout(() => setShowHints(false), 180)}
-              placeholder='Try: "I need a forklift for 3 days in Hamburg"'
+              placeholder='Try: "I need a forklift for 3 days in Berlin"'
               className="flex-1 text-gray-900 text-sm outline-none placeholder:text-gray-400 bg-transparent py-2 min-w-0"
             />
             {query && (
@@ -119,7 +119,7 @@ export default function HeroAISearch() {
 
       {/* Example chips below */}
       <div className="flex flex-wrap gap-2 mt-3">
-        {['Forklift · 3 days', 'LED Display · Hamburg', 'Generator · outdoor', 'Scissor Lift'].map(chip => (
+        {['Forklift · 3 days', 'LED Display · Berlin', 'Generator · outdoor', 'Scissor Lift'].map(chip => (
           <button
             key={chip}
             onMouseDown={() => { setQuery(chip); go(chip) }}

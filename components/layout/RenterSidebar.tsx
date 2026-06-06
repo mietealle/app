@@ -6,6 +6,7 @@ import {
   LayoutDashboard, Search, ShoppingBag, Clock, LogOut,
   ChevronDown, CheckCircle
 } from 'lucide-react'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { getSession, clearSession, type SessionUser } from '@/lib/session'
 import NotificationBell from '@/components/ui/NotificationBell'
@@ -44,9 +45,7 @@ export default function RenterSidebar() {
       {/* Logo */}
       <div className="p-5 border-b border-gray-100">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-orange-500 rounded-xl flex items-center justify-center">
-            <ShoppingBag className="w-5 h-5 text-white" />
-          </div>
+          <Image src="/logo.png" alt="Mietealle" width={36} height={36} className="rounded-xl" unoptimized />
           <div>
             <p className="text-gray-900 font-bold text-sm">Renter Portal</p>
             <p className="text-gray-400 text-xs truncate max-w-[120px]">{session.company}</p>
