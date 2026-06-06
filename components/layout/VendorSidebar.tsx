@@ -42,7 +42,7 @@ export default function VendorSidebar() {
   if (!session) return null
 
   return (
-    <aside className="w-60 shrink-0 bg-white border-r border-gray-100 min-h-screen flex flex-col shadow-sm">
+    <aside className="w-60 shrink-0 bg-white border-r border-gray-100 h-screen sticky top-0 flex flex-col shadow-sm overflow-hidden">
       {/* Logo */}
       <div className="p-5 border-b border-gray-100">
         <div className="flex items-center gap-3">
@@ -65,8 +65,8 @@ export default function VendorSidebar() {
           : <><Clock className="w-3.5 h-3.5 shrink-0" />Verification Pending</>}
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 p-4 space-y-1 mt-2">
+      {/* Nav — scrollable if many items */}
+      <nav className="flex-1 p-4 space-y-1 mt-2 overflow-y-auto">
         {nav.map(({ href, icon: Icon, label }) => {
           const active = href === '/vendor/dashboard'
             ? pathname === href

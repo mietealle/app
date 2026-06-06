@@ -21,7 +21,7 @@ export default function AdminSidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="w-60 shrink-0 bg-gray-900 min-h-screen flex flex-col">
+    <aside className="w-60 shrink-0 bg-gray-900 h-screen sticky top-0 flex flex-col overflow-hidden">
       <div className="p-5 border-b border-gray-800">
         <div className="flex items-center gap-3">
           <Image src="/logo.png" alt="Mietealle" width={36} height={36} className="rounded-xl" unoptimized />
@@ -32,7 +32,7 @@ export default function AdminSidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {nav.map(({ href, icon: Icon, label }) => (
           <Link key={href} href={href}
             className={cn(
