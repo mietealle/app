@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import HeroAISearch from '@/components/ai/HeroAISearch'
 import { mockProducts, categories } from '@/lib/mock-data'
 import { formatCurrency } from '@/lib/utils'
 import {
@@ -36,23 +37,8 @@ export default function HomePage() {
               Access forklifts, generators, display boards, and 500+ categories of industrial equipment — directly from verified vendors across Germany. No ownership. No maintenance. Just results.
             </p>
 
-            {/* Search bar */}
-            <div className="flex flex-col sm:flex-row gap-3 max-w-2xl">
-              <div className="flex-1 flex items-center gap-3 bg-white rounded-xl px-4 py-3 shadow-lg">
-                <Search className="w-5 h-5 text-gray-400 shrink-0" />
-                <input
-                  type="text"
-                  placeholder="Search equipment (e.g. forklift, generator, LED display)"
-                  className="flex-1 text-gray-900 text-sm outline-none placeholder:text-gray-400 bg-transparent"
-                />
-              </div>
-              <Link
-                href="/marketplace"
-                className="px-6 py-3 bg-brand-500 hover:bg-brand-400 text-white font-semibold rounded-xl transition-colors flex items-center gap-2 justify-center shadow-lg"
-              >
-                Search <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+            {/* ✨ AI Search bar */}
+            <HeroAISearch />
 
             {/* Trust badges */}
             <div className="flex flex-wrap gap-4 mt-8 text-sm text-gray-400">

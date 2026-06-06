@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import Navbar from '@/components/layout/Navbar'
@@ -20,7 +20,27 @@ export default function MarketplacePage() {
   const [onlyAvailable, setOnlyAvailable] = useState(false)
   const [aiQuery, setAiQuery]         = useState<(ParsedQuery & { raw: string }) | null>(null)
   const [showAdvanced, setShowAdvanced] = useState(false)
-  const session = typeof window !== 'undefined' ? getSession() : null
+  const session  = typeof window !== 'undefined' ? getSession() : null
+  const didInit  = useRef(false)
+
+  // Pick up params pushed by the hero AI search
+  useEffect(() => {
+    if (didInit.current) return
+    didInit.current = true
+    const params = new URLSearchParams(window.location.search)
+    const q    = params.get('q')
+    const cat  = params.get('category')
+    const loc  = params.get('location')
+    if (q) {
+      // Import inline to keep it simple
+      import('@/components/ai/AISearchBar').then(({ default: _ }) => {}).catch(() => {})
+      // Reconstruct parsed query from URL params
+      const parsed = { raw: q, keywords: q.toLowerCase().split(/\s+/).filter(w => w.length > 2), category: cat ?? undefined, location: loc ?? undefined, days: undefined, interpretation: `"${q}"` }
+      setAiQuery(parsed as any)
+      if (cat) setCategory(cat)
+      if (loc) setLocation(loc)
+    }
+  }, [])
 
   const fetchProducts = useCallback(() => {
     setLoading(true)
