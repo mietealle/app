@@ -3,8 +3,10 @@
  * Refreshes the auth token on every request so the session never expires mid-session.
  * Runs on every route except static files and Next.js internals.
  */
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+
+type CookieItem = { name: string; value: string; options?: CookieOptions }
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -15,7 +17,7 @@ export async function middleware(request: NextRequest) {
     {
       cookies: {
         getAll() { return request.cookies.getAll() },
-        setAll(toSet) {
+        setAll(toSet: CookieItem[]) {
           toSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({ request })
           toSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options))
